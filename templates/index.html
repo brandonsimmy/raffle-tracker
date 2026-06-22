@@ -5,7 +5,7 @@
 
     <title>Rev Comps Value Finder</title>
 
-<meta http-equiv="refresh" content="300">
+    <meta http-equiv="refresh" content="300">
 
     <style>
 
@@ -16,7 +16,13 @@
         }
 
         h1 {
+            margin-bottom: 5px;
+        }
+
+        .updated {
             margin-bottom: 20px;
+            color: #666;
+            font-size: 14px;
         }
 
         table {
@@ -61,6 +67,10 @@
 <body>
 
     <h1>Rev Comps Value Finder</h1>
+
+    <div class="updated">
+        Last updated: {{ last_updated }}
+    </div>
 
     <table>
 
