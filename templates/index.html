@@ -5,8 +5,6 @@
 
     <title>Rev Comps Value Finder</title>
 
-    <meta http-equiv="refresh" content="300">
-
     <style>
 
         body {
@@ -73,56 +71,69 @@
     </div>
 
     <table>
+        <thead>
+            <tr>
+                <th>Score</th>
+                <th>Unsold %</th>
+                <th>Price</th>
+                <th>Days Left</th>
+                <th>Tickets</th>
+                <th>Draw Date</th>
+                <th>Competition</th>
+            </tr>
+        </thead>
 
-        <tr>
-            <th>Score</th>
-            <th>Unsold %</th>
-            <th>Price</th>
-            <th>Days Left</th>
-            <th>Tickets</th>
-            <th>Draw Date</th>
-            <th>Competition</th>
-        </tr>
-
-        {% for c in competitions %}
-
-        <tr>
-
-            <td class="high-score">
-                {{ c.score }}
-            </td>
-
-            <td>
-                {{ c.unsold_pct }}%
-            </td>
-
-            <td>
-                £{{ c.price }}
-            </td>
-
-            <td>
-                {{ c.days_remaining }}
-            </td>
-
-            <td>
-                {{ "{:,}".format(c.tickets) }}
-            </td>
-
-            <td>
-                {{ c.draw_text }}
-            </td>
-
-            <td>
-                <a href="{{ c.url }}" target="_blank">
-                    {{ c.name }}
-                </a>
-            </td>
-
-        </tr>
-
-        {% endfor %}
-
+        <tbody>
+            {% for c in competitions %}
+            <tr>
+                <td class="high-score">{{ c.score }}</td>
+                <td>{{ c.unsold_pct }}%</td>
+                <td>£{{ c.price }}</td>
+                <td>{{ c.days_remaining }}</td>
+                <td>{{ "{:,}".format(c.tickets) }}</td>
+                <td>{{ c.draw_text }}</td>
+                <td>
+                    <a href="{{ c.url }}" target="_blank">
+                        {{ c.name }}
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
     </table>
+
+<script>
+async function refreshData() {
+    try {
+        const res = await fetch('/api/competitions');
+        const data = await res.json();
+
+        document.querySelector('.updated').innerText =
+            "Last updated: " + data.last_updated;
+
+        const rows = data.competitions.map(c => `
+            <tr>
+                <td class="high-score">${c.score}</td>
+                <td>${c.unsold_pct}%</td>
+                <td>£${c.price}</td>
+                <td>${c.days_remaining}</td>
+                <td>${Number(c.tickets).toLocaleString()}</td>
+                <td>${c.draw_text}</td>
+                <td><a href="${c.url}" target="_blank">${c.name}</a></td>
+            </tr>
+        `).join('');
+
+        document.querySelector("tbody").innerHTML = rows;
+
+    } catch (e) {
+        console.log("Refresh failed:", e);
+    }
+}
+
+// live refresh every 10 seconds
+setInterval(refreshData, 10000);
+refreshData();
+</script>
 
 </body>
 
