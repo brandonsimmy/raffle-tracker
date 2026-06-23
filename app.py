@@ -6,6 +6,7 @@ import threading
 import time
 
 app = FastAPI()
+
 templates = Jinja2Templates(directory="templates")
 
 cached_data = []
@@ -23,21 +24,25 @@ def update_loop():
         except Exception as e:
             print("Scrape failed:", e)
 
-        time.sleep(300)  # 5 minutes
+        time.sleep(300)
 
 
 @app.on_event("startup")
 def start_background_thread():
-    thread = threading.Thread(target=update_loop, daemon=True)
+    thread = threading.Thread(
+        target=update_loop,
+        daemon=True
+    )
     thread.start()
 
 
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
+
     return templates.TemplateResponse(
-        "index.html",
-        {
-            "request": request,
+        request=request,
+        name="index.html",
+        context={
             "competitions": cached_data,
             "last_updated": last_updated
         }
@@ -46,7 +51,10 @@ def home(request: Request):
 
 @app.get("/api/competitions")
 def api_competitions():
-    return JSONResponse({
-        "competitions": cached_data,
-        "last_updated": last_updated
-    })
+
+    return JSONResponse(
+        {
+            "competitions": cached_data,
+            "last_updated": last_updated
+        }
+    )
